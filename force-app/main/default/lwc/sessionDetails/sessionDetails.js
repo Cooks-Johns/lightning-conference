@@ -1,13 +1,15 @@
-import { LightningElement, api, track } from 'lwc';
-import { getSession } from 'data/sessionService';
-export default class sessionDetails extends LightningElement {
-    @track session;
-    @api
-    set sessionId(id) {
-        this._sessionId = id;
-        this.session = getSession(id);
+import { LightningElement, api, track, wire } from 'lwc';
+import getSession from '@salesforce/apex/SessionController.getSession';
+export default class SessionDetails extends LightningElement {
+  @api sessionId;
+  @track session;
+  @wire(getSession, { sessionId: '$sessionId' })
+  wiredSession({ error, data }) {
+    if (data) {
+      this.session = data;
+    } else if (error) {
+      this.session = undefined;
+      throw new Error('Failed to retrieve session');
     }
-    get sessionId() {
-        return this._sessionId;
-    }
+  }
 }
